@@ -77,6 +77,7 @@ body,
   overflow-x: hidden;
   padding-top: 20px;
   float: left;
+  transition: 300ms;
 }
 
 .sidenav a {

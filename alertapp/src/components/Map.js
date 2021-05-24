@@ -45,7 +45,7 @@ function Map() {
 
     return (
         <React.Fragment>
-            <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={"center"} dragging={false} zoomControl={"false"}>
+            <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={"center"} dragging={false} zoomControl={false}>
                 <TileLayer
                     attribution="© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>"
                     url="https://api.mapbox.com/styles/v1/marcolazzaro/ckosgje3e0yxt17td71wdxzuz/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWFyY29sYXp6YXJvIiwiYSI6ImNrb3NoMHM1czAxZHgycnF2b2Q4N2Rld2UifQ.wx-8i7emB-6UD1Uw4XgOCg"
