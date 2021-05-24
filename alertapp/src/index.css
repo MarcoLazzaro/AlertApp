@@ -1,0 +1,107 @@
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.leaflet-container {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+}
+
+.nav-header {
+  justify-items: center;
+  background-color: #0466c8;
+  font-family: "Montserrat", sans-serif;
+  text-decoration: none;
+  position: relative;
+}
+
+.nav-bar {
+  display: flex;
+  list-style: none;
+  float: right;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-bar li {
+  display: inline-block;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.nav-bar li a {
+  text-decoration: none;
+  color: #f1f1f1;
+}
+
+.nav-bar li a:visited {
+  text-decoration: none;
+  color: #f1f1f1;
+}
+
+.nav-bar li a:hover {
+  color: #f1f1f1;
+}
+
+.nav-bar span {
+  font-size: 30px;
+  cursor: pointer;
+}
+
+html,
+body,
+#map {
+  height: 100vh;
+  width: 100vw;
+}
+
+.sidenav {
+  height: 100vh;
+  width: 130px;
+  position: absolute;
+  z-index: 10000;
+  background-color: #0466c8;
+  overflow-x: hidden;
+  padding-top: 20px;
+  float: left;
+}
+
+.sidenav a {
+  padding: 6px 8px 6px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  color: #f1f1f1;
+  display: block;
+}
+
+.sidenav a:hover {
+  color: #f1f1f1;
+}
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  font-size: 28px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+  .sidenav a {
+    font-size: 18px;
+  }
+}
