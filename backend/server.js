@@ -1,7 +1,16 @@
 const express = require("express");
 const app = express()
 const mongoose = require("mongoose")
+const bodyParse = require("body-parser")
+const routesHandler = require("./routes/routes.js");
+const bodyParser = require("body-parser");
 require("dotenv/config")
+
+
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+app.use('/', routesHandler);
+
 
  mongoose.connect(process.env.DB_URI, {useNewUrlParser:true, useUnifiedTopology:true})
  .then( () =>{
