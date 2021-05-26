@@ -1,11 +1,15 @@
-import React, {useRef, useEffect} from 'react'
+import React, {useRef, useEffect, useState} from 'react'
 import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvents } from 'react-leaflet'
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import icon_1 from '../images/icons/alert_1.png'
 import icon_2 from '../images/icons/alert_2.png'
 import icon_3 from '../images/icons/alert_3.png'
 import icon_4 from '../images/icons/alert_4.png'
+import NavigationBar from './SideMenu'
+import SideMenu from './SideMenu'
 
 
 function GetIcon(_iconSize){
@@ -16,7 +20,33 @@ function GetIcon(_iconSize){
     
 }
 
+/*
+const options = {
+  title: 'Title',
+  message: 'Message',
+  buttons: [
+    {
+      label: 'Yes',
+      onClick: () => alert('Click Yes')
+    },
+    {
+      label: 'No',
+      onClick: () => alert('Click No')
+    }
+  ],
+  childrenElement: () => <div />,
+  customUI: ({ onClose }) => <div>Custom UI</div>,
+  closeOnEscape: true,
+  closeOnClickOutside: true,
+  willUnmount: () => {},
+  afterClose: () => {},
+  onClickOutside: () => {},
+  onKeypressEscape: () => {},
+  overlayClassName: "overlay-custom-class-name"
+};
 
+confirmAlert(options);
+*/
 
 var tempLocation = [40.85631, 14.24641];
 /*
@@ -33,6 +63,8 @@ var greenIcon = L.icon({
 
 
 function Map() {
+  //const [AlertBox, setAlertBox] = useState(false);
+
     useEffect(()=>{
         if(("geolocation" in navigator)){
             console.log("geolocation IS supported: ")
@@ -53,7 +85,24 @@ function Map() {
     function doSomething()
     {
       console.log("mouse hol for 20")
-      clearInterval(interval);
+      clearInterval(interval)
+      confirmAlert({
+        title: 'Confirm to submit',
+        message: 'Add and alert at this location?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: () => alert('Fire DB Call')
+          },
+          {
+            label: 'Cancel',
+            onClick: () => {}
+          }
+        ],
+        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Describe here what happened"></textarea></div>
+      });
+      //if (window.confirm('Are you sure you wish to delete this item?'));
+      //setAlertBox(true);
     }
 
     function ClickableComponent() {
@@ -88,7 +137,8 @@ function Map() {
                     maxZoom={20}
                     maxNativeZoom={19}
                 />
-                <ClickableComponent></ClickableComponent>
+                <ClickableComponent>
+                </ClickableComponent>
                 <Marker position={tempLocation} icon={GetIcon(48)} >
                     <Popup>
                     Alert level 1<br></br>lat {tempLocation[0]}<br></br>long {tempLocation[1]}
