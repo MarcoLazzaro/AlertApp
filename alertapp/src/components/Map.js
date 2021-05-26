@@ -1,7 +1,7 @@
 import React, {useRef, useEffect} from 'react'
-import L from 'leaflet'
+import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvent } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvents } from 'react-leaflet'
 import icon_1 from '../images/icons/alert_1.png'
 import icon_2 from '../images/icons/alert_2.png'
 import icon_3 from '../images/icons/alert_3.png'
@@ -13,7 +13,9 @@ function GetIcon(_iconSize){
         iconUrl: icon_1,
         iconSize: [_iconSize, _iconSize]
     })
+    
 }
+
 
 
 var tempLocation = [40.85631, 14.24641];
@@ -29,6 +31,7 @@ var greenIcon = L.icon({
 });
 */
 
+
 function Map() {
     useEffect(()=>{
         if(("geolocation" in navigator)){
@@ -43,6 +46,38 @@ function Map() {
         }
     })
 
+
+    //MOUSE DOWN POPUP
+    var interval;
+
+    function doSomething()
+    {
+      console.log("mouse hol for 20")
+      clearInterval(interval);
+    }
+
+    function ClickableComponent() {
+        const map = useMapEvents({
+          click: (e) => {
+            const { lat, lng } = e.latlng;
+            console.log("latlong: " + e.latlng)
+          },
+          mousedown: (e) => {
+            interval = setInterval(doSomething, 500);
+          },
+          mouseup: (e) => {
+            clearInterval(interval);
+          },
+          contextmenu: (e) => {
+            doSomething();
+          }
+        });
+        return null;
+      }
+
+      //MOUSE DOWN END
+    
+
     return (
         <React.Fragment>
             <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={"center"} dragging={false} zoomControl={false}>
@@ -53,12 +88,13 @@ function Map() {
                     maxZoom={20}
                     maxNativeZoom={19}
                 />
-                <Marker position={tempLocation} icon={GetIcon(48)}>
+                <ClickableComponent></ClickableComponent>
+                <Marker position={tempLocation} icon={GetIcon(48)} >
                     <Popup>
                     Alert level 1<br></br>lat {tempLocation[0]}<br></br>long {tempLocation[1]}
                     </Popup>
                 </Marker>
-                </MapContainer>
+            </MapContainer>
         </React.Fragment>
     )
 }
