@@ -39,7 +39,7 @@ router.get('/addAlert', async(req, res) => {
                     40.85631,
                     14.24641
                 ]
-            }
+            },
     });
     try {
         await newAlert.save(async(err, newAlertResult) => {
@@ -52,5 +52,9 @@ router.get('/addAlert', async(req, res) => {
     }
 })
 
+router.get('/getAlert', async(req, res) => {
+    Alerts.find()
+    .then(foundAlerts => res.json(foundAlerts))
+})
 
 module.exports = router;

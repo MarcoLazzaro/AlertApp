@@ -2,6 +2,12 @@ import React, {Component} from 'react'
 import NavigationBar  from './components/NavigationBar'
 import SideMenu from './components/SideMenu'
 import Map from './components/Map'
+import axios from 'axios'
+
+
+const api = axios.create({
+  baseURL: 'http://localhost:4000'
+})
 
 
 class App extends Component {
@@ -9,9 +15,19 @@ class App extends Component {
     alets: []     //Alerts container
    }
 
+  constructor(){
+    super();
+    this.getAlerts();
+  }
 
-  getAlerts(){
-    //setup getData
+  //funcition to get data from DB
+  getAlerts = () => {
+    api.get('/getAlert')
+    .then((response) => {
+      console.log(response.data);
+    }).catch(err => {
+      console.log(err)
+    })
   }
 
   render() { 

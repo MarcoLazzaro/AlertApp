@@ -19,7 +19,8 @@ const pointSchema = new Schema({
     location: {
       type: pointSchema,
       required: true
-    }
+    },
+    createdAt: { type: Date, default: Date.now, index: { expires: 3600 }}
   });
 
   
