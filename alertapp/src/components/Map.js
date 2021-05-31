@@ -10,6 +10,12 @@ import icon_3 from '../images/icons/alert_3.png'
 import icon_4 from '../images/icons/alert_4.png'
 import NavigationBar from './SideMenu'
 import SideMenu from './SideMenu'
+import axios from 'axios'
+
+
+const api = axios.create({
+  baseURL: 'http://localhost:4000'
+})
 
 
 function GetIcon(_iconSize){
@@ -82,9 +88,54 @@ function Map() {
     //MOUSE DOWN POPUP
     var interval;
 
-    function doSomething()
+
+    function addAlert() {
+      console.log("called")
+      
+      const newAlert = {
+        text: "From frontend",
+        alertLevel: 1,
+        location: {
+            type: "Point",
+            coordinates: [
+              40.85621,
+              14.247637
+            ]
+          },
+        };
+      api.post("/addAlertToApi", newAlert)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+          console.log(error);
+          console.log(newAlert)
+      });
+    }
+    /*
+    function addAlert() {
+      api.post("/addAlert", {
+        text: "Road closed",
+            alertLevel: 2,
+            location: {
+                type: "Point",
+                coordinates: [
+                    40.85631,
+                    14.24641
+                ]
+            }
+      })
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+          console.log(error);
+      });
+    }
+    */
+
+    function popupAlert()
     {
-      console.log("mouse hol for 20")
       clearInterval(interval)
       confirmAlert({
         title: 'Confirm to submit',
@@ -92,14 +143,14 @@ function Map() {
         buttons: [
           {
             label: 'Yes',
-            onClick: () => alert('Fire DB Call')
+            onClick: () => {addAlert()}
           },
           {
             label: 'Cancel',
             onClick: () => {}
           }
         ],
-        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Describe here what happened"></textarea></div>
+        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description"></textarea></div>
       });
       //if (window.confirm('Are you sure you wish to delete this item?'));
       //setAlertBox(true);
@@ -112,13 +163,13 @@ function Map() {
             console.log("latlong: " + e.latlng)
           },
           mousedown: (e) => {
-            interval = setInterval(doSomething, 500);
+            interval = setInterval(popupAlert, 500);
           },
           mouseup: (e) => {
             clearInterval(interval);
           },
           contextmenu: (e) => {
-            doSomething();
+            popupAlert();
           }
         });
         return null;
@@ -129,7 +180,7 @@ function Map() {
 
     return (
         <React.Fragment>
-            <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={"center"} dragging={false} zoomControl={false}>
+            <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={false} dragging={false} zoomControl={false} touchZoom={true}>
                 <TileLayer
                     attribution="© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>"
                     url="https://api.mapbox.com/styles/v1/marcolazzaro/ckosgje3e0yxt17td71wdxzuz/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWFyY29sYXp6YXJvIiwiYSI6ImNrb3NoMHM1czAxZHgycnF2b2Q4N2Rld2UifQ.wx-8i7emB-6UD1Uw4XgOCg"

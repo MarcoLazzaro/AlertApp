@@ -52,6 +52,28 @@ router.get('/addAlert', async(req, res) => {
     }
 })
 
+router.post('/addAlertToApi', async(req, res) => {
+    console.log("test from addAlertToApi")
+    const Data = req.body
+    
+    console.log(Data)
+    const newAlert = new Alerts({
+        text: Data.text,
+        alertLevel: Data.alertLevel,
+        location: Data.location
+});
+    try {
+        await newAlert.save(async(err, newAlertResult) => {
+            console.log('new Alert added to db from frontend!');
+            res.end('new Alert added to db from frontend!');
+        })
+    } catch(err){
+        console.log(err);
+        res.end('error adding alert from frontend!');
+
+    }
+})
+
 router.get('/getAlert', async(req, res) => {
     Alerts.find()
     .then(foundAlerts => res.json(foundAlerts))
