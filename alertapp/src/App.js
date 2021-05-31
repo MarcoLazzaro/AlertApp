@@ -22,7 +22,7 @@ class App extends Component {
 
   //funcition to get data from DB
   getAlerts = () => {
-    api.get('/getAlert')
+    api.post('/getAlert')
     .then((response) => {
       console.log(response.data);
     }).catch(err => {
