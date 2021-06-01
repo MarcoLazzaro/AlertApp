@@ -8,7 +8,7 @@ class SideMenu extends Component {
           visible: false
         };
       }
-
+      
     render() { 
 
         return (
