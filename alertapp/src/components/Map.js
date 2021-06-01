@@ -55,6 +55,7 @@ confirmAlert(options);
 */
 
 var tempLocation = [40.85631, 14.24641];
+var description = ''
 /*
 var greenIcon = L.icon({
     iconUrl: "alert_4.png",
@@ -69,7 +70,16 @@ var greenIcon = L.icon({
 
 
 function Map() {
-  //const [AlertBox, setAlertBox] = useState(false);
+  const [AlertBox, setAlertBox] = useState(false);
+  //const [desc, setDesc] = useState('');
+
+  //const [value, setValue] = useState('');
+
+    const handleChange = (e) => {
+      console.log('called')
+      //setValue(e.target.value);
+      description = e.target.value
+    };
 
     useEffect(()=>{
         if(("geolocation" in navigator)){
@@ -89,17 +99,17 @@ function Map() {
     var interval;
 
 
-    function addAlert() {
+    function addAlert(alertPosition) {
       console.log("called")
       
       const newAlert = {
-        text: "From frontend",
+        text: description,
         alertLevel: 1,
         location: {
             type: "Point",
             coordinates: [
-              40.85621,
-              14.247637
+              alertPosition.lat,
+              alertPosition.lng
             ]
           },
         };
@@ -133,47 +143,59 @@ function Map() {
       });
     }
     */
+    /*
+    function handleChange(e) {
+      console.log("handler called")
+      this.setDesc(desc = e.target.value)
+    }
+    */
 
-    function popupAlert()
+    function popupAlert(alertPosition)
     {
+      //let description = '';
       clearInterval(interval)
+      console.log("from popup: " + alertPosition)
       confirmAlert({
         title: 'Confirm to submit',
         message: 'Add and alert at this location?',
         buttons: [
           {
             label: 'Yes',
-            onClick: () => {addAlert()}
+            onClick: () => {addAlert(alertPosition)}
           },
           {
             label: 'Cancel',
-            onClick: () => {}
+            onClick: () => {console.log(description)}
           }
         ],
-        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description"></textarea></div>
+        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea></div>
       });
       //if (window.confirm('Are you sure you wish to delete this item?'));
       //setAlertBox(true);
     }
 
     function ClickableComponent() {
-        const map = useMapEvents({
-          click: (e) => {
-            const { lat, lng } = e.latlng;
-            console.log("latlong: " + e.latlng)
-          },
-          mousedown: (e) => {
-            interval = setInterval(popupAlert, 500);
-          },
-          mouseup: (e) => {
-            clearInterval(interval);
-          },
-          contextmenu: (e) => {
-            popupAlert();
-          }
-        });
-        return null;
-      }
+      const map = useMapEvents({
+        click: (e) => {
+          const { lat, lng } = e.latlng;
+          //console.log("click,   latlong: " + e.latlng)
+        },
+        mousedown: (e) => {
+          console.log("mouse-down,   latlong: " + e.latlng)
+          interval = setInterval(() => {
+            popupAlert(e.latlng);
+          }, 500);
+        },
+        mouseup: (e) => {
+          clearInterval(interval);
+        },
+        contextmenu: (e) => {
+          console.log("right-click,   latlong: " + e.latlng)
+          popupAlert(e.latlng);
+        }
+      });
+      return null;
+    }
 
       //MOUSE DOWN END
     
