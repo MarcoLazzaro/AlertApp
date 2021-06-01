@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState} from 'react'
+import React, {useRef, useEffect, useState, Component, componentDidMount} from 'react'
 import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvents } from 'react-leaflet'
@@ -69,9 +69,10 @@ var greenIcon = L.icon({
 */
 
 
+
 function Map() {
   const [AlertBox, setAlertBox] = useState(false);
-  //const [desc, setDesc] = useState('');
+  const [desc, setDesc] = useState('');
 
   //const [value, setValue] = useState('');
 
@@ -92,8 +93,12 @@ function Map() {
         else{
             console.log("geolocation NOT upported")
         }
-    })
-
+        api.get('/getAlert')
+        .then(function (response) {
+          setAlertBox(response)
+          console.log(response)
+        })
+    }, [desc]);
 
     //MOUSE DOWN POPUP
     var interval;
@@ -115,7 +120,9 @@ function Map() {
         };
       api.post("/addAlertToApi", newAlert)
       .then(function (response) {
-        console.log(response);
+        console.log(response + "QUI");
+        setDesc(description) //ritriggering render
+        console.log("called set");
       })
       .catch(function (error) {
           console.log(error);
