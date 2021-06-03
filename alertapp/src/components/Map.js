@@ -73,6 +73,8 @@ var greenIcon = L.icon({
 function Map() {
   const [AlertBox, setAlertBox] = useState(false);
   const [desc, setDesc] = useState('');
+  const [alerts, setAlerts] = useState([]);
+  //var alerts = [];
 
   //const [value, setValue] = useState('');
 
@@ -82,23 +84,41 @@ function Map() {
       description = e.target.value
     };
 
+    const performPolling = () => {
+      console.log('polling')
+      api.get('/getAlert')
+      .then(function (response) {
+      //setAlertBox(response)
+      setAlerts(response.data)
+      //console.log(alerts)
+    })}
+
     useEffect(()=>{
-        if(("geolocation" in navigator)){
-            console.log("geolocation IS supported: ")
-            navigator.geolocation.getCurrentPosition((position) => {
-                console.log(position.coords.latitude, position.coords.longitude);
-              });
-            
-        }
-        else{
-            console.log("geolocation NOT upported")
-        }
-        api.get('/getAlert')
-        .then(function (response) {
-          setAlertBox(response)
-          console.log(response)
-        })
-    }, [desc]);
+      console.log("COMPONENT DI MOUNT\n")
+      if(("geolocation" in navigator)){
+          console.log("geolocation IS supported: ")
+          navigator.geolocation.getCurrentPosition((position) => {
+              console.log(position.coords.latitude, position.coords.longitude);
+            });
+      }
+      else{
+          console.log("geolocation NOT upported")
+      }
+      api.get('/getAlert')
+      .then(function (response) {
+      setAlerts(response.data)
+      //console.log(alerts)
+      })
+
+      const polling = setInterval(performPolling, 5000)
+      console.log("COMPONENT DI MOUNT END\n")
+    }, []);
+
+    
+
+    useEffect(()=>{
+        console.log(alerts)
+    }, [alerts]);
 
     //MOUSE DOWN POPUP
     var interval;
@@ -120,9 +140,8 @@ function Map() {
         };
       api.post("/addAlertToApi", newAlert)
       .then(function (response) {
-        console.log(response + "QUI");
+        console.log(response.data);
         setDesc(description) //ritriggering render
-        console.log("called set");
       })
       .catch(function (error) {
           console.log(error);
