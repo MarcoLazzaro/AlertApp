@@ -148,33 +148,6 @@ function Map() {
           console.log(newAlert)
       });
     }
-    /*
-    function addAlert() {
-      api.post("/addAlert", {
-        text: "Road closed",
-            alertLevel: 2,
-            location: {
-                type: "Point",
-                coordinates: [
-                    40.85631,
-                    14.24641
-                ]
-            }
-      })
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-          console.log(error);
-      });
-    }
-    */
-    /*
-    function handleChange(e) {
-      console.log("handler called")
-      this.setDesc(desc = e.target.value)
-    }
-    */
 
     function popupAlert(alertPosition)
     {
@@ -238,11 +211,14 @@ function Map() {
                 />
                 <ClickableComponent>
                 </ClickableComponent>
-                <Marker position={tempLocation} icon={GetIcon(48)} >
-                    <Popup>
-                    Alert level 1<br></br>lat {tempLocation[0]}<br></br>long {tempLocation[1]}
-                    </Popup>
+                {alerts.map((alerts) => (console.log(alerts.location.coordinates),
+                <Marker position={alerts.location.coordinates} icon={GetIcon(48)} >
+                  <Popup>
+                  Alert level 1<br></br>
+                  </Popup>
                 </Marker>
+                ))}
+                
             </MapContainer>
         </React.Fragment>
     )
