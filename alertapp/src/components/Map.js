@@ -12,9 +12,14 @@ import NavigationBar from './SideMenu'
 import SideMenu from './SideMenu'
 import axios from 'axios'
 
-
+/*
 const api = axios.create({
   baseURL: 'http://localhost:4000'
+})
+*/
+
+const api = axios.create({
+  baseURL: 'http://192.168.1.30:4000'
 })
 
 
@@ -26,47 +31,9 @@ function GetIcon(_iconSize){
     
 }
 
-/*
-const options = {
-  title: 'Title',
-  message: 'Message',
-  buttons: [
-    {
-      label: 'Yes',
-      onClick: () => alert('Click Yes')
-    },
-    {
-      label: 'No',
-      onClick: () => alert('Click No')
-    }
-  ],
-  childrenElement: () => <div />,
-  customUI: ({ onClose }) => <div>Custom UI</div>,
-  closeOnEscape: true,
-  closeOnClickOutside: true,
-  willUnmount: () => {},
-  afterClose: () => {},
-  onClickOutside: () => {},
-  onKeypressEscape: () => {},
-  overlayClassName: "overlay-custom-class-name"
-};
-
-confirmAlert(options);
-*/
 
 var tempLocation = [40.85631, 14.24641];
 var description = ''
-/*
-var greenIcon = L.icon({
-    iconUrl: "alert_4.png",
-
-    iconSize:     [48, 48], // size of the icon
-    shadowSize:   [50, 64], // size of the shadow
-    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-    shadowAnchor: [4, 62],  // the same for the shadow
-    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-});
-*/
 
 
 
@@ -74,13 +41,15 @@ function Map() {
   const [AlertBox, setAlertBox] = useState(false);
   const [desc, setDesc] = useState('');
   const [alerts, setAlerts] = useState([]);
-  //var alerts = [];
-
-  //const [value, setValue] = useState('');
+  const [currentCenter, setCenter] = useState([40.85631, 14.24641]);
+  const [mappa, setMappa] = useState(null);
+  let currentLat = 40.85631;
+  let currentLong = 14.24641;
+  
 
     const handleChange = (e) => {
       console.log('called')
-      //setValue(e.target.value);
+      
       description = e.target.value
     };
 
@@ -88,9 +57,7 @@ function Map() {
       console.log('polling')
       api.get('/getAlert')
       .then(function (response) {
-      //setAlertBox(response)
       setAlerts(response.data)
-      //console.log(alerts)
     })}
 
     useEffect(()=>{
@@ -98,6 +65,9 @@ function Map() {
       if(("geolocation" in navigator)){
           console.log("geolocation IS supported: ")
           navigator.geolocation.getCurrentPosition((position) => {
+              currentLat = position.coords.latitude;
+              currentLong = position.coords.longitude;
+              setCenter([currentLat, currentLong])
               console.log(position.coords.latitude, position.coords.longitude);
             });
       }
@@ -107,7 +77,6 @@ function Map() {
       api.get('/getAlert')
       .then(function (response) {
       setAlerts(response.data)
-      //console.log(alerts)
       })
 
       const polling = setInterval(performPolling, 5000)
@@ -120,7 +89,13 @@ function Map() {
         console.log(alerts)
     }, [alerts]);
 
-    //MOUSE DOWN POPUP
+    useEffect(()=>{
+      console.log(currentCenter)
+      console.log("currentPos")
+      console.log(mappa)
+      if (mappa) mappa.flyTo(currentCenter, 18)
+  }, [currentCenter]);
+
     var interval;
 
 
@@ -151,7 +126,6 @@ function Map() {
 
     function popupAlert(alertPosition)
     {
-      //let description = '';
       clearInterval(interval)
       console.log("from popup: " + alertPosition)
       confirmAlert({
@@ -169,15 +143,12 @@ function Map() {
         ],
         childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea></div>
       });
-      //if (window.confirm('Are you sure you wish to delete this item?'));
-      //setAlertBox(true);
     }
 
     function ClickableComponent() {
       const map = useMapEvents({
         click: (e) => {
           const { lat, lng } = e.latlng;
-          //console.log("click,   latlong: " + e.latlng)
         },
         mousedown: (e) => {
           console.log("mouse-down,   latlong: " + e.latlng)
@@ -195,13 +166,11 @@ function Map() {
       });
       return null;
     }
-
-      //MOUSE DOWN END
     
 
     return (
         <React.Fragment>
-            <MapContainer center={[40.85631, 14.24641]} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={false} dragging={false} zoomControl={false} touchZoom={true}>
+            <MapContainer center={currentCenter} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={false} dragging={false} zoomControl={false} touchZoom={true} watch={true} whenCreated={setMappa}>
                 <TileLayer
                     attribution="© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>"
                     url="https://api.mapbox.com/styles/v1/marcolazzaro/ckosgje3e0yxt17td71wdxzuz/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWFyY29sYXp6YXJvIiwiYSI6ImNrb3NoMHM1czAxZHgycnF2b2Q4N2Rld2UifQ.wx-8i7emB-6UD1Uw4XgOCg"
@@ -214,7 +183,7 @@ function Map() {
                 {alerts.map((alerts) => (console.log(alerts.location.coordinates),
                 <Marker position={alerts.location.coordinates} icon={GetIcon(48)} >
                   <Popup>
-                  Alert level 1<br></br>
+                  {alerts.text}
                   </Popup>
                 </Marker>
                 ))}
@@ -225,6 +194,3 @@ function Map() {
 }
 
 export default Map
-
-
-//<ZoomControl position="topright"></ZoomControl> on click make snavbar disappear (NEED FIX OR REMOVE)
