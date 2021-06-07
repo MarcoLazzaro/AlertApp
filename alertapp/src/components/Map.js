@@ -23,23 +23,39 @@ const api = axios.create({
 })
 
 
-function GetIcon(_iconSize){
+function GetIcon(_iconSize, alertLevel){
+  console.log("getIcon = " + alertLevel)
+  if(alertLevel == 1){
     return new L.icon({
-        iconUrl: icon_1,
-        iconSize: [_iconSize, _iconSize]
-    })
-    
+      iconUrl: icon_1,
+      iconSize: [_iconSize, _iconSize]
+  })
+  }
+  else if(alertLevel == 2){
+    return new L.icon({
+      iconUrl: icon_2,
+      iconSize: [_iconSize, _iconSize]
+  })
+  }
+  else {
+    return new L.icon({
+      iconUrl: icon_3,
+      iconSize: [_iconSize, _iconSize]
+  })
+  }
 }
 
 
 var tempLocation = [40.85631, 14.24641];
 var description = ''
+var radio = 1
 
 
 
 function Map() {
   const [AlertBox, setAlertBox] = useState(false);
   const [desc, setDesc] = useState('');
+  //const [radio, setRadio] = useState(1);
   const [alerts, setAlerts] = useState([]);
   const [currentCenter, setCenter] = useState([40.85631, 14.24641]);
   const [mappa, setMappa] = useState(null);
@@ -52,6 +68,13 @@ function Map() {
       
       description = e.target.value
     };
+
+    const handleRadio = (e) => {
+      console.log('called Radio' + e.target.value)
+      
+      radio = e.target.value
+    };
+
 
     const performPolling = () => {
       console.log('polling')
@@ -104,7 +127,7 @@ function Map() {
       
       const newAlert = {
         text: description,
-        alertLevel: 1,
+        alertLevel: radio,
         location: {
             type: "Point",
             coordinates: [
@@ -116,12 +139,13 @@ function Map() {
       api.post("/addAlertToApi", newAlert)
       .then(function (response) {
         console.log(response.data);
-        setDesc(description) //ritriggering render
+        setDesc(description); //ritriggering render
       })
       .catch(function (error) {
           console.log(error);
           console.log(newAlert)
       });
+      radio = 1; //radio to defalut alertLevel
     }
 
     function popupAlert(alertPosition)
@@ -141,7 +165,16 @@ function Map() {
             onClick: () => {console.log(description)}
           }
         ],
-        childrenElement: () => <div><textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea></div>
+        childrenElement: () => 
+        <div>
+          <div>
+            <h3>Alert Level</h3>
+            <label><input type="radio" id="alertLevel" value='1' name="alertLevel" onClick={handleRadio}/>Level 1</label>
+            <label><input type="radio" id="alertLevel" value='2' name="alertLevel" onClick={handleRadio}/>Level 2</label>
+            <label><input type="radio" id="alertLevel" value='3' name="alertLevel" onClick={handleRadio}/>Level 3</label>
+          </div>
+          <textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea>
+        </div>
       });
     }
 
@@ -181,7 +214,7 @@ function Map() {
                 <ClickableComponent>
                 </ClickableComponent>
                 {alerts.map((alerts) => (console.log(alerts.location.coordinates),
-                <Marker position={alerts.location.coordinates} icon={GetIcon(48)} >
+                <Marker position={alerts.location.coordinates} icon={GetIcon(48, alerts.alertLevel)} >
                   <Popup>
                   {alerts.text}
                   </Popup>

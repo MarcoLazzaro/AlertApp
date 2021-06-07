@@ -32,7 +32,7 @@ router.get('/addAlert', async(req, res) => {
     
     const newAlert = new Alerts({
             text: "Road closed",
-            alertLevel: 2,
+            alertLevel: 1,
             location: {
                 type: "Point",
                 coordinates: [

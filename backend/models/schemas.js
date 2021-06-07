@@ -15,7 +15,12 @@ const pointSchema = new Schema({
   
   const alertSchema = new Schema({
     text: String,
-    alertLever: Number,
+    alertLevel:{
+      type : Number,
+      min: 1,
+      max: 3,
+      default: 1,
+    },
     location: {
       type: pointSchema,
       required: true
