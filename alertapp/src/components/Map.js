@@ -1,18 +1,17 @@
-import React, {useRef, useEffect, useState, Component, componentDidMount} from 'react'
+import React, {useEffect, useState, } from 'react'
 import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
 //import Platform from 'react-native'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import icon_1 from '../images/icons/alert_1.png'
 import icon_2 from '../images/icons/alert_2.png'
 import icon_3 from '../images/icons/alert_3.png'
-import icon_4 from '../images/icons/alert_4.png'
-import NavigationBar from './SideMenu'
-import SideMenu from './SideMenu'
 import axios from 'axios'
 
+var description = ''    //Desription field for the alert popup
+var radio = 1           //Alert level variable in alert popup
 
 /*
 const api = axios.create({
@@ -24,231 +23,201 @@ const api = axios.create({
   baseURL: 'http://192.168.1.30:4000'
 })
 
-
+//Get icon for each alert level
 function GetIcon(_iconSize, alertLevel){
-  console.log("getIcon = " + alertLevel)
   if(alertLevel == 1){
     return new L.icon({
-      iconUrl: icon_1,
+      iconUrl: icon_1,      //blue alert icon
       iconSize: [_iconSize, _iconSize]
   })
   }
   else if(alertLevel == 2){
     return new L.icon({
-      iconUrl: icon_2,
+      iconUrl: icon_2,      //yellow alert icon
       iconSize: [_iconSize, _iconSize]
   })
   }
   else {
     return new L.icon({
-      iconUrl: icon_3,
+      iconUrl: icon_3,      //red alert icon
       iconSize: [_iconSize, _iconSize]
   })
   }
 }
 
-
-var tempLocation = [40.85631, 14.24641];
-var description = ''
-var radio = 1
-
-
-
 function Map() {
-  const [AlertBox, setAlertBox] = useState(false);
-  const [desc, setDesc] = useState('');
-  //const [radio, setRadio] = useState(1);
-  const [alerts, setAlerts] = useState([]);
-  const [currentCenter, setCenter] = useState([40.85631, 14.24641]);
-  const [mappa, setMappa] = useState(null);
-  let currentLat = 40.85631;
-  let currentLong = 14.24641;
-  var watchID = null;
+  const [alerts, setAlerts] = useState([]);     //Structure containing alert from API
+  const [currentCenter, setCenter] = useState([40.85631, 14.24641]);  //Current map center (updated with watchPosition())
+  const [mappa, setMappa] = useState(null);     //Ref to map object created on first map render
+  let currentLat = 40.85631;                    //temp Lat
+  let currentLong = 14.24641;                   //temp Lng
+  var watchID = null;                           //ID returned from watchposition call (for detecting geolocation changes)
 
-    const handleChange = (e) => {
-      console.log('called')
-      
-      description = e.target.value
-    };
+  //handler for the textarea field during alert popup
+  const handleChange = (e) => {
+    description = e.target.value
+  };
 
-    const handleRadio = (e) => {
-      console.log('called Radio' + e.target.value)
-      
-      radio = e.target.value
-    };
+  //handler for the alert level selection during alert popup
+  const handleRadio = (e) => {
+    radio = e.target.value
+  };
 
+  //polling function called every 5sec. Gets data from the API
+  const performPolling = () => {
+    api.get('/getAlert')
+    .then(function (response) {
+    setAlerts(response.data)
+  })}
 
-    const performPolling = () => {
-      console.log('polling')
-      /*
-      api.get('/getAlert',  {
-        params: {
-          coords: currentCenter
-        }
-      })
-      */
-      api.get('/getAlert')
-      .then(function (response) {
-      setAlerts(response.data)
-    })}
+  //useEffect funtion with empty array as input (second argument). Acts like componentDidMount()
+  useEffect(()=>{
+    //checking for geolocation support
+    if(("geolocation" in navigator)){
+        navigator.geolocation.getCurrentPosition((position) => {
+            currentLat = position.coords.latitude;
+            currentLong = position.coords.longitude;
+            setCenter([currentLat, currentLong])
+            console.log(position.coords.latitude, position.coords.longitude);
+          });
+    }
+    else{
+        console.log("geolocation NOT upported")
+    }
 
-    useEffect(()=>{
-      console.log("COMPONENT DI MOUNT\n")
-      if(("geolocation" in navigator)){
-          console.log("geolocation IS supported: ")
-          navigator.geolocation.getCurrentPosition((position) => {
-              currentLat = position.coords.latitude;
-              currentLong = position.coords.longitude;
-              setCenter([currentLat, currentLong])
-              console.log(position.coords.latitude, position.coords.longitude);
-            });
+    //getting first data from the API on ComponentDidMount 
+    api.get('/getAlert',  {
+      params: {
+        coords: currentCenter
       }
-      else{
-          console.log("geolocation NOT upported")
-      }
-      api.get('/getAlert',  {
-        params: {
-          coords: currentCenter
-        }
-      })
-      .then(function (response) {
-      setAlerts(response.data)
-      })
-
-      const polling = setInterval(performPolling, 5000)
-
-      watchID = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000 });
-
-      console.log("COMPONENT DI MOUNT END\n")
-    }, []);
+    })
+    .then(function (response) {
+    setAlerts(response.data)
+    })
+  
+    //Setting up a polling function for fetching data. (interval 5sec)
+    const polling = setInterval(performPolling, 5000)
+    //watchPosition constantly looks for location changes, triggering callbacks (onSucces, onError)
+    watchID = navigator.geolocation.watchPosition(onSuccess, onError, { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
+  }, []);
 
     
+  //wwatchPosition on success
+  function onSuccess(position) {
+    console.log([position.coords.latitude, position.coords.longitude])
+    setCenter([position.coords.latitude, position.coords.longitude])
+  }
+  //wwatchPosition on error
+  function onError(e) {
+    console.log(e)
+  }
 
-    function onSuccess(position) {
-      console.log([position.coords.latitude, position.coords.longitude])
-      setCenter([position.coords.latitude, position.coords.longitude])
-    }
-
-    function onError(e) {
-      console.log(e)
-    }
-
-    useEffect(()=>{
-        console.log(alerts)
-    }, [alerts]);
-
-    useEffect(()=>{
-      console.log(currentCenter)
-      console.log("currentPos")
-      console.log(mappa)
-      if (mappa) mappa.flyTo(currentCenter, 18)
+  //useEffect on map center change (flies to new location)
+  useEffect(()=>{
+    if (mappa) mappa.flyTo(currentCenter, 18)
   }, [currentCenter]);
 
-    var interval;
-
-
-    function addAlert(alertPosition) {
-      console.log("called")
-      
-      const newAlert = {
-        text: description,
-        alertLevel: radio,
-        location: {
-            type: "Point",
-            coordinates: [
-              alertPosition.lat,
-              alertPosition.lng
-            ]
-          },
-        };
-      api.post("/addAlertToApi", newAlert)
-      .then(function (response) {
-        console.log(response.data);
-        setDesc(description); //ritriggering render
-      })
-      .catch(function (error) {
-          console.log(error);
-          console.log(newAlert)
-      });
-      radio = 1; //radio to defalut alertLevel
-    }
-
-    function popupAlert(alertPosition)
-    {
-      clearInterval(interval)
-      console.log("from popup: " + alertPosition)
-      confirmAlert({
-        title: 'Confirm to submit',
-        message: 'Add and alert at this location?',
-        buttons: [
-          {
-            label: 'Yes',
-            onClick: () => {addAlert(alertPosition)}
-          },
-          {
-            label: 'Cancel',
-            onClick: () => {console.log(description)}
-          }
-        ],
-        childrenElement: () => 
-        <div>
-          <div>
-            <h3>Alert Level</h3>
-            <label><input type="radio" id="alertLevel" value='1' name="alertLevel" onClick={handleRadio}/>Level 1</label>
-            <label><input type="radio" id="alertLevel" value='2' name="alertLevel" onClick={handleRadio}/>Level 2</label>
-            <label><input type="radio" id="alertLevel" value='3' name="alertLevel" onClick={handleRadio}/>Level 3</label>
-          </div>
-          <textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea>
-        </div>
-      });
-    }
-
-    function ClickableComponent() {
-      const map = useMapEvents({
-        click: (e) => {
-          const { lat, lng } = e.latlng;
+  //function for submitting new alert to the API
+  function addAlert(alertPosition) {
+    //alert data structure (follows the api schema)
+    const newAlert = {
+      text: description,
+      alertLevel: radio,
+      location: {
+          type: "Point",
+          coordinates: [
+            alertPosition.lat,
+            alertPosition.lng
+          ]
         },
-        mousedown: (e) => {
-          console.log("mouse-down,   latlong: " + e.latlng)
-          interval = setInterval(() => {
-            popupAlert(e.latlng);
-          }, 500);
+      };
+    //post request to the backend
+    api.post("/addAlertToApi", newAlert)
+    .then(function (response) {
+      console.log(response.data); //ritriggering render
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    radio = 1; //radio to defalut alertLevel
+  }
+
+  var interval;
+
+  //function creating the popup form for submitting alerts
+  function popupAlert(alertPosition)
+  {
+    clearInterval(interval)
+    confirmAlert({
+      title: 'Confirm to submit',
+      message: 'Add and alert at this location?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {addAlert(alertPosition)}
         },
-        mouseup: (e) => {
-          clearInterval(interval);
-        },
-        contextmenu: (e) => {
-          console.log("right-click,   latlong: " + e.latlng)
-          popupAlert(e.latlng);
+        {
+          label: 'Cancel',
+          onClick: () => {console.log(description)}
         }
-      });
-      return null;
-    }
+      ],
+      childrenElement: () => 
+      <div>
+        <div>
+          <h3>Alert Level</h3>
+          <label><input type="radio" id="alertLevel" value='1' name="alertLevel" onClick={handleRadio}/>Level 1</label>
+          <label><input type="radio" id="alertLevel" value='2' name="alertLevel" onClick={handleRadio}/>Level 2</label>
+          <label><input type="radio" id="alertLevel" value='3' name="alertLevel" onClick={handleRadio}/>Level 3</label>
+        </div>
+        <textarea className="confirm-box-textarea" rows="3" cols="30" maxLength="50" placeholder="Alert description" onChange={handleChange}></textarea>
+      </div>
+    });
+  }
+
+  //component detecting user's input
+  function ClickableComponent() {
+    const map = useMapEvents({
+      click: (e) => {
+        const { lat, lng } = e.latlng;
+      },
+      mousedown: (e) => {
+        interval = setInterval(() => {
+          popupAlert(e.latlng);
+        }, 500);
+      },
+      mouseup: (e) => {
+        clearInterval(interval);
+      },
+      contextmenu: (e) => {
+        popupAlert(e.latlng);
+      }
+    });
+    return null;
+  }
     
 
-    return (
-        <React.Fragment>
-            <MapContainer center={currentCenter} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={false} dragging={false} zoomControl={false} touchZoom={true} watch={true} whenCreated={setMappa}>
-                <TileLayer
-                    attribution="© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>"
-                    url="https://api.mapbox.com/styles/v1/marcolazzaro/ckosgje3e0yxt17td71wdxzuz/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWFyY29sYXp6YXJvIiwiYSI6ImNrb3NoMHM1czAxZHgycnF2b2Q4N2Rld2UifQ.wx-8i7emB-6UD1Uw4XgOCg"
-                    minZoom={18}
-                    maxZoom={20}
-                    maxNativeZoom={19}
-                />
-                <ClickableComponent>
-                </ClickableComponent>
-                {alerts.map((alerts) => (console.log(alerts.location.coordinates),
-                <Marker position={alerts.location.coordinates} icon={GetIcon(48, alerts.alertLevel)} >
-                  <Popup>
-                  {alerts.text}
-                  </Popup>
-                </Marker>
-                ))}
-                
-            </MapContainer>
-        </React.Fragment>
-    )
+  return (
+      <React.Fragment>
+          <MapContainer center={currentCenter} zoom={18} scrollWheelZoom={"center"} doubleClickZoom={false} dragging={false} zoomControl={false} touchZoom={true} watch={true} whenCreated={setMappa}>
+              <TileLayer
+                  attribution="© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>"
+                  url="https://api.mapbox.com/styles/v1/marcolazzaro/ckosgje3e0yxt17td71wdxzuz/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoibWFyY29sYXp6YXJvIiwiYSI6ImNrb3NoMHM1czAxZHgycnF2b2Q4N2Rld2UifQ.wx-8i7emB-6UD1Uw4XgOCg"
+                  minZoom={18}
+                  maxZoom={20}
+                  maxNativeZoom={19}
+              />
+              <ClickableComponent>
+              </ClickableComponent>
+              {alerts.map((alerts) =>
+              <Marker position={alerts.location.coordinates} icon={GetIcon(48, alerts.alertLevel)} >
+                <Popup>
+                {alerts.text}
+                </Popup>
+              </Marker>
+              )}
+          </MapContainer>
+      </React.Fragment>
+  )
 }
 
 export default Map

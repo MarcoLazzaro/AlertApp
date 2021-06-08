@@ -2,34 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Alerts = require('../models/schemas.js')
 
-/*
-router.get('/addAlert', async(req, res) => {
-    const alert = {
-        "text": "Road closed",
-        "alertLevel": 2,
-        "location": {
-            "type": "Point",
-            "coordinates": [
-                40.85631,
-                14.24641
-            ]
-        }
-    }
-    const newAlert = new Alerts;
-    try {
-        await newAlert.save(async(err, newAlertResult) => {
-            console.log('new Alert added to db!');
-            res.end('new Alert added to db!');
-        })
-    } catch(err){
-        console.log('error adding alert!');
-        res.end('error adding alert!');
-    }
-})
-*/
 
+//Submits new alert to the MongoDB collection. (Just for test and debugging)
 router.get('/addAlert', async(req, res) => {
-    
     const newAlert = new Alerts({
             text: "Road closed",
             alertLevel: 1,
@@ -52,6 +27,7 @@ router.get('/addAlert', async(req, res) => {
     }
 })
 
+//Submits new alert to the MongoDB collection. Uses data recived from the frontend
 router.post('/addAlertToApi', async(req, res) => {
     const Data = req.body
     
@@ -73,6 +49,7 @@ router.post('/addAlertToApi', async(req, res) => {
     }
 })
 
+//Gets the alert collection data from MongoDB
 router.get('/getAlert', async(req, res) => {
     Alerts.find()
     .then(foundAlerts => res.json(foundAlerts))

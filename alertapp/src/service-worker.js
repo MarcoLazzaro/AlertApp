@@ -77,7 +77,8 @@ self.addEventListener("install", e => {
           "/index.html",
           "/index.css",
           "/logo192.png",
-          "/alert.ico"
+          "/logo512.png",
+          "/favicon.ico"
           ])
       })
   )
