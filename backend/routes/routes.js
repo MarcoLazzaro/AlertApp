@@ -53,7 +53,6 @@ router.get('/addAlert', async(req, res) => {
 })
 
 router.post('/addAlertToApi', async(req, res) => {
-    console.log("test from addAlertToApi")
     const Data = req.body
     
     console.log(Data)
@@ -77,6 +76,7 @@ router.post('/addAlertToApi', async(req, res) => {
 router.get('/getAlert', async(req, res) => {
     Alerts.find()
     .then(foundAlerts => res.json(foundAlerts))
+    //console.log(req.query.coords)  //coordinated from forntend for spatial queries
 })
 
 module.exports = router;

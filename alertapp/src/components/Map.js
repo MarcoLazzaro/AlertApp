@@ -2,6 +2,7 @@ import React, {useRef, useEffect, useState, Component, componentDidMount} from '
 import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMapEvents } from 'react-leaflet'
+//import Platform from 'react-native'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import icon_1 from '../images/icons/alert_1.png'
@@ -11,6 +12,7 @@ import icon_4 from '../images/icons/alert_4.png'
 import NavigationBar from './SideMenu'
 import SideMenu from './SideMenu'
 import axios from 'axios'
+
 
 /*
 const api = axios.create({
@@ -61,7 +63,7 @@ function Map() {
   const [mappa, setMappa] = useState(null);
   let currentLat = 40.85631;
   let currentLong = 14.24641;
-  
+  var watchID = null;
 
     const handleChange = (e) => {
       console.log('called')
@@ -78,6 +80,13 @@ function Map() {
 
     const performPolling = () => {
       console.log('polling')
+      /*
+      api.get('/getAlert',  {
+        params: {
+          coords: currentCenter
+        }
+      })
+      */
       api.get('/getAlert')
       .then(function (response) {
       setAlerts(response.data)
@@ -97,16 +106,32 @@ function Map() {
       else{
           console.log("geolocation NOT upported")
       }
-      api.get('/getAlert')
+      api.get('/getAlert',  {
+        params: {
+          coords: currentCenter
+        }
+      })
       .then(function (response) {
       setAlerts(response.data)
       })
 
       const polling = setInterval(performPolling, 5000)
+
+      watchID = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000 });
+
       console.log("COMPONENT DI MOUNT END\n")
     }, []);
 
     
+
+    function onSuccess(position) {
+      console.log([position.coords.latitude, position.coords.longitude])
+      setCenter([position.coords.latitude, position.coords.longitude])
+    }
+
+    function onError(e) {
+      console.log(e)
+    }
 
     useEffect(()=>{
         console.log(alerts)

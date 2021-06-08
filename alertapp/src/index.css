@@ -30,14 +30,14 @@ code {
   font-family: "Montserrat", sans-serif;
   text-decoration: none;
   position: relative;
+  vertical-align: middle;
 }
 
 .nav-bar {
   display: flex;
   list-style: none;
   float: right;
-  margin: 0;
-  padding: 0;
+  padding: 10;
 }
 
 .nav-bar li {
