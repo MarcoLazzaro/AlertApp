@@ -13,11 +13,8 @@ class SideMenu extends Component {
 
         return (
             <div className= "sidenav">
-                <a onClick={() => this.setState({visible: !this.state.visible})} href="#about">About</a>
-                <a href="#services">Services</a>
-                <a href="#clients">Clients</a>
-                <a href="#contact">Contact</a>
-                {this.state.visible && <a href="#lezzo">Lezzo</a>}
+                <a onClick={() => this.setState({visible: !this.state.visible})} href="#settings">Settings</a>
+                <a href="#Abaut">About</a>
             </div> 
         );
     }
@@ -25,3 +22,6 @@ class SideMenu extends Component {
 
 
 export default SideMenu;
+
+
+//TODO: Change href to settings

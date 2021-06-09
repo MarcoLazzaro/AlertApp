@@ -161,9 +161,11 @@ function Map() {
     api.post("/addAlertToApi", newAlert)
     .then(function (response) {
       console.log(response.data); //ritriggering render
+      alert("Alert submitted!")
     })
     .catch(function (error) {
       console.log(error);
+      alert("Error: server error")
     });
     radio = 1; //radio to defalut alertLevel
   }

@@ -71,9 +71,9 @@ router.post('/addAlertToApi', async(req, res) => {
     }
 })
 
-//Gets the alert collection data from MongoDB
+//Gets the alert collection data from MongoDB (Geospatial query (based on "2dsphere" type))
 router.get('/getAlert', async(req, res) => {
-    console.log(req.query.coords)
+    //console.log(req.query.coords) //coordinated from forntend for spatial queries
     Schemas.Alerts.find({
         location:
           { $near :
@@ -85,7 +85,6 @@ router.get('/getAlert', async(req, res) => {
       }
    )
     .then(foundAlerts => res.json(foundAlerts))
-    //console.log(req.query.coords)  //coordinated from forntend for spatial queries
 })
 
 module.exports = router;
