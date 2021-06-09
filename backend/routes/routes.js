@@ -1,11 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const Alerts = require('../models/schemas.js')
+const Schemas = require('../models/schemas.js')
+
+
+//change to post request with data from frontend
+//LOGIN SYSTEM PROTOTYPE
+router.get('/signup', async(req,res) => {
+    const newUser = new Schemas.Users({
+        username: "Marco",
+        email: "marco@email.com",
+        password: "testPassword"
+    });
+    try {
+        await newUser.save(async(err, newUserResult) => {
+            console.log('new User added to db!');
+            res.end('new User added to db!');
+        })
+    } catch(err){
+        console.log(err);
+        res.end('error adding User!');
+    }
+});
 
 
 //Submits new alert to the MongoDB collection. (Just for test and debugging)
 router.get('/addAlert', async(req, res) => {
-    const newAlert = new Alerts({
+    const newAlert = new Schemas.Alerts({
             text: "Road closed",
             alertLevel: 1,
             location: {
@@ -18,6 +38,9 @@ router.get('/addAlert', async(req, res) => {
     });
     try {
         await newAlert.save(async(err, newAlertResult) => {
+            if(err){
+                console.log(err)
+            }
             console.log('new Alert added to db!');
             res.end('new Alert added to db!');
         })
@@ -32,11 +55,11 @@ router.post('/addAlertToApi', async(req, res) => {
     const Data = req.body
     
     console.log(Data)
-    const newAlert = new Alerts({
+    const newAlert = new Schemas.Alerts({
         text: Data.text,
         alertLevel: Data.alertLevel,
         location: Data.location
-});
+    });
     try {
         await newAlert.save(async(err, newAlertResult) => {
             console.log('new Alert added to db from frontend!');
@@ -45,13 +68,22 @@ router.post('/addAlertToApi', async(req, res) => {
     } catch(err){
         console.log(err);
         res.end('error adding alert from frontend!');
-
     }
 })
 
 //Gets the alert collection data from MongoDB
 router.get('/getAlert', async(req, res) => {
-    Alerts.find()
+    console.log(req.query.coords)
+    Schemas.Alerts.find({
+        location:
+          { $near :
+             {
+               $geometry: { type: "Point",  coordinates: [ req.query.coords[0], req.query.coords[1] ] },
+               $maxDistance: 800
+             }
+          }
+      }
+   )
     .then(foundAlerts => res.json(foundAlerts))
     //console.log(req.query.coords)  //coordinated from forntend for spatial queries
 })

@@ -2,8 +2,8 @@ import React, {useEffect, useState, } from 'react'
 import L, {map} from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
-//import Platform from 'react-native'
 import { confirmAlert } from 'react-confirm-alert'; // Import
+import useInterval from '../useInterval'
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import icon_1 from '../images/icons/alert_1.png'
 import icon_2 from '../images/icons/alert_2.png'
@@ -49,9 +49,11 @@ function Map() {
   const [alerts, setAlerts] = useState([]);     //Structure containing alert from API
   const [currentCenter, setCenter] = useState([40.85631, 14.24641]);  //Current map center (updated with watchPosition())
   const [mappa, setMappa] = useState(null);     //Ref to map object created on first map render
+  const [isPolling, setPolling] = useState(true);
   let currentLat = 40.85631;                    //temp Lat
   let currentLong = 14.24641;                   //temp Lng
   var watchID = null;                           //ID returned from watchposition call (for detecting geolocation changes)
+  var polling;                                  //polling function
 
   //handler for the textarea field during alert popup
   const handleChange = (e) => {
@@ -64,11 +66,18 @@ function Map() {
   };
 
   //polling function called every 5sec. Gets data from the API
+  /*
   const performPolling = () => {
-    api.get('/getAlert')
+    console.log("polling " + currentCenter)
+    api.get('/getAlert',  {
+      params: {
+        coords: currentCenter
+      }
+    })
     .then(function (response) {
     setAlerts(response.data)
   })}
+  */
 
   //useEffect funtion with empty array as input (second argument). Acts like componentDidMount()
   useEffect(()=>{
@@ -96,12 +105,26 @@ function Map() {
     })
   
     //Setting up a polling function for fetching data. (interval 5sec)
-    const polling = setInterval(performPolling, 5000)
+    //polling = setInterval(performPolling, 5000)
     //watchPosition constantly looks for location changes, triggering callbacks (onSucces, onError)
     watchID = navigator.geolocation.watchPosition(onSuccess, onError, { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
   }, []);
 
-    
+  useInterval(() => {
+    // Your custom logic here
+    console.log("polling " + currentCenter)
+    api.get('/getAlert',  {
+      params: {
+        coords: currentCenter
+      }
+    })
+    .then(function (response) {
+      setAlerts(response.data)
+    })
+  }, 
+  // Delay in milliseconds or null to stop it
+  isPolling ? 5000 : null);
+
   //wwatchPosition on success
   function onSuccess(position) {
     console.log([position.coords.latitude, position.coords.longitude])
@@ -115,6 +138,9 @@ function Map() {
   //useEffect on map center change (flies to new location)
   useEffect(()=>{
     if (mappa) mappa.flyTo(currentCenter, 18)
+    //clearInterval(polling)
+    //console.log("cleared prev polling")
+    //const polling = setInterval(performPolling, 5000)
   }, [currentCenter]);
 
   //function for submitting new alert to the API

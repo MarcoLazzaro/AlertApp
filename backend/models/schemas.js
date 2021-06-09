@@ -23,11 +23,32 @@ const pointSchema = new Schema({
     },
     location: {
       type: pointSchema,
-      required: true
+      index: '2dsphere',
+      required: true,
     },
     createdAt: { type: Date, default: Date.now, index: { expires: 3600 }}
   });
 
+
+  const signupTemplate = new Schema ({
+    username:{
+      type:String,
+      required:true
+    },
+    email:{
+      type:String,
+      required:true,
+      unique:true
+    },
+    password:{
+      type:String,
+      required:true
+    }
+  })
+
+
   
   const Alerts = mongoose.model('Alerts', alertSchema);
-  module.exports = Alerts;
+  const Users = mongoose.model('Users', signupTemplate);
+  const Schemas = {'Alerts':Alerts, 'Users':Users};
+  module.exports = Schemas;
