@@ -58,6 +58,6 @@ Questa modalità è necessaria per il funzionamento del service worker, per gara
 Inoltre permette all'app di essere installata sul desktop
 *	recarsi nella directory "alertapp"
 * eseguire il comando dal terminale CMD(administartor): *npm install -g serve*
-* eseguire il comando: *npm run build"
-* eseguire il comando: *serve -s build" per effettuare il deployment della build precedentemente creata
+* eseguire il comando: *npm run build*
+* eseguire il comando: *serve -s build* per effettuare il deployment della build precedentemente creata
   * seguire l'indirizzo riportato in console sopo il comando serve
