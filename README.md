@@ -61,3 +61,6 @@ Inoltre permette all'app di essere installata sul desktop
 * eseguire il comando: *npm run build*
 * eseguire il comando: *serve -s build* per effettuare il deployment della build precedentemente creata
   * seguire l'indirizzo riportato in console dopo il comando *serve*
+
+# Link al Google Slides per la presentazione
+https://docs.google.com/presentation/d/10oafE8tPHnoPwgduUms7-uShSpM-sB-iZ4txF4FHlcE/edit?usp=sharing
