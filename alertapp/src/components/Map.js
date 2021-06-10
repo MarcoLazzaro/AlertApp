@@ -13,15 +13,15 @@ import axios from 'axios'
 var description = ''    //Desription field for the alert popup
 var radio = 1           //Alert level variable in alert popup
 
-/*
 const api = axios.create({
   baseURL: 'http://localhost:4000'
 })
-*/
 
+/*
 const api = axios.create({
   baseURL: 'http://192.168.1.30:4000'
 })
+*/
 
 //Get icon for each alert level
 function GetIcon(_iconSize, alertLevel){
