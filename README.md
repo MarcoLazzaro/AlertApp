@@ -60,4 +60,4 @@ Inoltre permette all'app di essere installata sul desktop
 * eseguire il comando dal terminale CMD(administartor): *npm install -g serve*
 * eseguire il comando: *npm run build*
 * eseguire il comando: *serve -s build* per effettuare il deployment della build precedentemente creata
-  * seguire l'indirizzo riportato in console sopo il comando serve
+  * seguire l'indirizzo riportato in console dopo il comando *serve*
