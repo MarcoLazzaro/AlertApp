@@ -1,9 +1,13 @@
 # Istruzioni per l'esecuzione del Progetto
-**installare node.js 14.17.0 LTS**
+## Autore: Marco Lazzaro
+## Università: Università degli Studi di Napoli PARTHENOPE
+## Anno: 2020/2021
 
 **IDE utilizzato: Visual Studio Code (come amministratore)**
 
 **OPERATIVE SYSTEM: Windows 10 Pro**
+
+**installare node.js 14.17.0 LTS**
 
 **Clona il progetto da github (Visual Studio Code necessita di git for windows per effettuare il clone)**
 
